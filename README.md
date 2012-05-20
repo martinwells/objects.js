@@ -1,12 +1,15 @@
-# gamecore.js - high-performance core classes for javascript game development
+# gamecore.js
+High-performance core classes for javascript game development
 
 gamecore.js is a framework to help build high-performance (and large) games using javascript.
 
 It is comprised of two related parts:
 
-1) Classes - yummy object-oriented class support (optimized for gaming structure and performance)
-
-2) Object pooling - garbage collection bad, automatic super-fast object pooling good!
+* Classes - an implementation of class.js (static inheritance, super methods and introspection)
+* General purpose object pooling - garbage collection bad, automatic super-fast object pooling good!
+* Class and object IDs
+* LinkedList - a high-performance double linked list
+* Device - a device independent map (well, a start at one anyway)
 
 # Why?
 
@@ -15,35 +18,24 @@ We like building games in javascript, but along the way we found some issues:
 * Object-oriented - call us old fashioned, but object-orientation is just in our dna now, so we took what
  we felt was the best of the javascript class systems (thanks to Prototype and class.js/Javascript MVC) and
  tweaked a few things.
-
-* Pooling - garbage collection is a pain for a high-performance game, so rather than implementing it sporadically
- throughout a game, we built a way to easily pool any class.
-
+* Pooling - garbage collection is a pain for a high-performance game, so rather than implementing it sporadically,
+we built a way to easily pool any class.
 * Linked Lists - we needed a way of storing game objects in a super-fast way, so we included a high-speed linked list.
+* We included some other tools, like a simple performance measurement, Tim Down's awesome hashtable and a device lookup
+for some general game shimming.
 
 Lastly, and probably most importantly, we open-sourced all this so that other library developers (creating code for
 use in games) can implement things like object pooling easily (and thus making it useful in a gaming context).
 
-# Installing
-
-## Download
-
-To use gamecore.js, include the script in your html. You can use the prebuilt minified version:
-
-``` js
-<script src="gamecore.min.js"></script>
-```
-
 # Using
 
-## Classes
-A modified version of class.js to cater to static inheritance and deep object cloning
+## gamceore.Class
+A modified version of class.js to cater to static inheritance and deep object cloning.
 Based almost completely on class.js (Javascript MVC -- Justin Meyer, Brian Moschel, Michael Mayer and others)
-(http://javascriptmvc.com/contribute.html)
+(http://javascriptmvc.com/contribute.html).
 Some portions adapted from Prototype JavaScript framework, version 1.6.0.1 (c) 2005-2007 Sam Stephenson
 
-Class system for javascript:
-
+Easy class creation:
 ```javascript
   var Fighter = gamecore.Base.extend('Fighter',
   {
@@ -56,7 +48,7 @@ Class system for javascript:
       hp: 0,
       lastFireTime: 0,
 
-      init: function(hp)
+      init: function(hp)    // instance constructor
       {
           this.hp = hp;
       },
@@ -74,7 +66,7 @@ Class system for javascript:
 
 Introspection:
 ```javascript
-  gamecore.Base.extend(‘Fighter.Gunship’);
+  gamecore.Base.extend('Fighter.Gunship');
   Fighter.Gunship.shortName; // ‘Gunship’
   Fighter.Gunship.fullName;  // ‘Fighter.Gunship’
   Fighter.Gunship.namespace; // ‘Fighter’
@@ -157,7 +149,7 @@ var p = Point.create(100, 100);
 // ... do something
 p.release();
 ```
-## Performance Measurement
+## gamecore.PerformanceMeasure
 
 A simple tool for measuring performance in ms and an (experimental) memory usage tracker.
 ```javascript
@@ -174,7 +166,7 @@ object a second time will result in a silent return from the add method.
 
 In order to keep a track of node links, an object must be able to identify itself with a getUniqueId() function.
 
-To add an item use:
+To add/remove an item use:
 ```javascript
 list.add(newItem);
 list.remove(newItem);
