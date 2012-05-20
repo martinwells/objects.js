@@ -1,9 +1,7 @@
 # gamecore.js
-High-performance core classes for javascript game development
-
 gamecore.js is a framework to help build high-performance (and large) games using javascript.
 
-It is comprised of two related parts:
+It is comprised of:
 
 * Classes - an implementation of class.js (static inheritance, super methods and introspection)
 * General purpose object pooling - garbage collection bad, automatic super-fast object pooling good!
