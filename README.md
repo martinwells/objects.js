@@ -11,7 +11,7 @@ It is comprised of:
 
 # Why?
 
-We like building games in javascript, but along the way we found some issues:
+We [Playcraft](http://playcraftlabs.com) like building games in javascript, but along the way we found some issues:
 
 * Object-oriented - call us old fashioned, but object-orientation is just in our dna now, so we took what
  we felt was the best of the javascript class systems (thanks to Prototype and class.js/Javascript MVC) and
