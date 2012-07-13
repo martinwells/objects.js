@@ -35,9 +35,11 @@ gamecore.Device = gamecore.Base.extend('gamecore.Device',
             this.isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') != -1;
             this.isChrome = navigator.userAgent.toLowerCase().indexOf('chrome') != -1;
             this.isOpera = navigator.userAgent.toLowerCase().indexOf('opera') != -1;
-            this.isTouch = "ontouchstart" in window;
+            this.isTouch = window.ontouchstart !== 'undefined';
 
-            this.hasMemoryProfiling = (window.performance.memory);
+            this.hasMemoryProfiling =
+                window.performance !== 'undefined' &&
+                    window.performance.memory !== 'undefined';
 
             if (/MSIE (\d+\.\d+);/.test(navigator.userAgent))
             {
@@ -55,7 +57,7 @@ gamecore.Device = gamecore.Base.extend('gamecore.Device',
                         window.msRequestAnimationFrame ||
                         function (callback, element)
                         {
-                            window.setTimeout(callback, 1000 / this.fps);
+                            window.setTimeout(callback, 16, Date.now());
                         };
 
                 // apply to our window global to avoid illegal invocations (it's a native)
