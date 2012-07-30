@@ -40,14 +40,8 @@ gamecore.Device = gamecore.Base.extend('gamecore.Device',
             this.isOpera = navigator.userAgent.toLowerCase().indexOf('opera') != -1;
             this.isTouch = window.ontouchstart !== 'undefined';
 
-<<<<<<< HEAD
-            this.hasMemoryProfiling =
-                window.performance !== 'undefined' &&
-                    window.performance.memory !== 'undefined';
-=======
             if (window.performance != undefined)
                 this.hasMemoryProfiling = (window.performance.memory);
->>>>>>> Inheritance typing, isa, pool stats, pool tracing and hashlists
 
             if (/MSIE (\d+\.\d+);/.test(navigator.userAgent))
             {
