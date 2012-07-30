@@ -17,6 +17,7 @@ We ([Playcraft](http://playcraftlabs.com)) like building games in javascript, bu
  we felt was the best of the javascript class systems (thanks to Prototype and class.js/Javascript MVC) and
  tweaked a few things.
 * Pooling - garbage collection is a pain for a high-performance game, so rather than implementing it sporadically,
+we built a way to easily pool any class.
 * Linked Lists - we needed a way of storing game objects in a super-fast way, so we included a high-speed linked list.
 * We included some other tools, like a simple performance measurement, Tim Down's awesome hashtable and a device lookup
 for some general game shimming.
