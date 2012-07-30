@@ -63,6 +63,7 @@ gamecore.Pool = gamecore.Base.extend('gamecore.Pool',
 
         pools: new gamecore.Hashtable(), // all your pools belong to us
         totalPooled: 0,
+        totalUsed: 0,
 
         /**
          * Acquire an object from a pool based on the class[name]. Typically this method is
@@ -71,8 +72,8 @@ gamecore.Pool = gamecore.Base.extend('gamecore.Pool',
          */
         acquire: function(classType)
         {
-            var pool = this.pools.get(classType.fullName);
-            if (pool == undefined)
+            var pool = this.getPool(classType);
+            if (pool == undefined || pool == null)
             {
                 // create a pool for this type of class
                 //this.info('Constructing a new pool for ' + classType.fullName + ' objects.');
@@ -86,7 +87,6 @@ gamecore.Pool = gamecore.Base.extend('gamecore.Pool',
         /**
          * Releases an object back into it's corresponding object pool
          * @param pooledObj Object to return to the pool
-         * @throws
          */
         release: function(pooledObj)
         {
@@ -96,6 +96,29 @@ gamecore.Pool = gamecore.Base.extend('gamecore.Pool',
                     " but no pool exists";
 
             pool.release(pooledObj);
+        },
+
+        /**
+         * Returns the pool associated with the given classType, or null if no pool currently exists
+         */
+        getPool: function(classType)
+        {
+            return this.pools.get(classType.fullName);
+        },
+
+        getStats: function()
+        {
+            var s = '';
+
+            var keys = this.pools.keys();
+            for (var i=0; i < keys.length; i++)
+            {
+                var key = keys[i];
+                var pool = this.pools.get(key);
+                s += key + ' (free: ' + pool.freeList.length() + ' used: ' + pool.usedList.length() + ')\n';
+            }
+
+            return s;
         }
 
 
@@ -106,6 +129,8 @@ gamecore.Pool = gamecore.Base.extend('gamecore.Pool',
     {
         freeList: null,
         usedList: null,
+        traces: null,
+        tracing: false,
         initialSize:   0, // size of the initial object pool
         classType:  null, // the class of object in this pool
 
@@ -124,6 +149,18 @@ gamecore.Pool = gamecore.Base.extend('gamecore.Pool',
             // instantiate the initial objects for the pool
             this.initialSize = initial;
             this.expand(initial);
+        },
+
+        startTracing: function()
+        {
+            if (this.tracing) return;
+            this.tracing = true;
+            this.traces = new gamecore.Hashtable();
+        },
+
+        stopTracing: function()
+        {
+            this.tracing = false;
         },
 
         /**
@@ -159,8 +196,24 @@ gamecore.Pool = gamecore.Base.extend('gamecore.Pool',
             this.returnObj = this.freeList.first.obj;
             this.freeList.remove(this.returnObj);
             this.returnObj.destroyed = false;
+            gamecore.Pool.totalUsed++;
 
             this.usedList.add(this.returnObj);
+            //console.log(' acquiring: ' + this.returnObj.Class.fullName);
+
+            if (this.tracing)
+            {
+                var stack = printStackTrace();
+                var pos = stack.length-1;
+                while (stack[pos].indexOf('Class.addTo')== 0 && pos > 0)
+                    pos--;
+                var count = this.traces.get(stack[pos]);
+                if (count == null)
+                    this.traces.put(stack[pos], { value: 1 });
+                else
+                    count.value++;
+            }
+
             return this.returnObj;
         },
 
@@ -173,6 +226,23 @@ gamecore.Pool = gamecore.Base.extend('gamecore.Pool',
             this.freeList.add(obj);
             this.usedList.remove(obj);
             obj.destroyed = true;
+            gamecore.Pool.totalUsed--;
+
+            //console.log(' releasing: ' + obj.Class.fullName);
+        },
+
+        getStats: function()
+        {
+            var s = this.Class.fullName + ' stats: ' + this.freeList.count + ' free, ' + this.usedList.count + ' in use.\n';
+
+            if (this.tracing)
+            {
+                s += 'TRACING\n';
+                var traceKeys = this.traces.keys();
+                for (var k in traceKeys)
+                    s += traceKeys[k] + ' (' + this.traces.get(traceKeys[k]).value + ')\n';
+            }
+            return s;
         },
 
         dump: function(msg)
@@ -190,7 +260,27 @@ gamecore.Pool = gamecore.Base.extend('gamecore.Pool',
         size: function()
         {
             return this.freeList.count + this.usedList.count;
+        },
+
+        /**
+         * Returns the LinkedList of currently free objects in the pool
+         */
+        getFreeList: function()
+        {
+            return this.freeList;
+        },
+
+        /**
+         * Returns the LinkedList of current used objects in the pool
+         * @return {*}
+         */
+        getUsedList: function()
+        {
+            return this.usedList;
         }
+
+
+
 
     });
 
@@ -212,6 +302,11 @@ gamecore.Pooled = gamecore.Base('gamecore.Pooled',
         create: function ()
         {
             return gamecore.Pool.acquire(this);
+        },
+
+        getPool: function()
+        {
+            return gamecore.Pool.getPool(this);
         }
 
     },

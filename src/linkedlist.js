@@ -116,7 +116,9 @@ gamecore.LinkedList = gamecore.Base('gamecore.LinkedList',
                 node = this.addNode(obj);
             } else
             {
-                // if the object is already in the list just return (can't add an object more than once)
+                // if the object is already in the list just throw an (can't add an object more than once)
+                // if you want to quickly check if an item is already in a list, then call list.getNode(obj)
+                // which will return null if it's not in this list
                 if (node.free == false)
                     throw 'Attempting to add object: ' + obj.getUniqueId() + ' twice to list ' + this.getUniqueId();
 
@@ -153,16 +155,24 @@ gamecore.LinkedList = gamecore.Base('gamecore.LinkedList',
             if (this.showDebug) this.dump('after add');
         },
 
+        has: function(obj)
+        {
+            var node = this.getNode(obj);
+            return !(node == null || node.free == true);
+        },
+
         /**
          * Removes an item from the list
          * @param obj The object to remove
+         * @returns boolean true if the item was removed, false if the item was not on the list
          */
         remove: function(obj)
         {
             if (this.showDebug) this.dump('before remove of ' + obj);
             var node = this.getNode(obj);
             if (node == null || node.free == true)
-                throw ('Error: trying to remove a node (' + obj + ') that isnt on the list ');
+                return false; // ignore this error (trying to remove something not there
+                //throw ('Error: trying to remove a node (' + obj + ') that isnt on the list ');
 
             // pull this object out and tie up the ends
             if (node.prevLinked != null)
@@ -182,6 +192,8 @@ gamecore.LinkedList = gamecore.Base('gamecore.LinkedList',
 
             this.count--;
             if (this.showDebug) this.dump('after remove');
+
+            return true;
         },
 
         /**
@@ -201,6 +213,14 @@ gamecore.LinkedList = gamecore.Base('gamecore.LinkedList',
         },
 
         /**
+         * @return number of items in the list
+         */
+        length: function()
+        {
+            return this.count;
+        },
+
+        /**
          * Outputs the contents of the current list. Usually for debugging.
          */
         dump: function(msg)
@@ -209,7 +229,7 @@ gamecore.LinkedList = gamecore.Base('gamecore.LinkedList',
             var a = this.first;
             while (a != null)
             {
-                this.debug("{" + a.obj + "} previous=" + ( a.prevLinked ? a.prevLinked.obj : "NULL"));
+                this.debug("{" + a.obj.toString() + "} previous=" + ( a.prevLinked ? a.prevLinked.obj : "NULL"));
                 a = a.nextLinked;
             }
             this.debug("===================================");

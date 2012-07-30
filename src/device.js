@@ -17,13 +17,16 @@ gamecore.Device = gamecore.Base.extend('gamecore.Device',
         isiPad:false,
         isAndroid:false,
         isTouch:false,
-        isFirefox: false,
-        isChrome: false,
-        isOpera: false,
-        isIE: false,
-        ieVersion: 0,
-        requestAnimFrame: null,
-        hasMemoryProfiling: false,
+        isFirefox:false,
+        isChrome:false,
+        isOpera:false,
+        isIE:false,
+        ieVersion:0,
+        requestAnimFrame:null,
+        hasMemoryProfiling:false,
+        canPlayOgg: false,
+        canPlayMP3: false,
+        canPlayWav: false,
 
         init:function ()
         {
@@ -37,15 +40,26 @@ gamecore.Device = gamecore.Base.extend('gamecore.Device',
             this.isOpera = navigator.userAgent.toLowerCase().indexOf('opera') != -1;
             this.isTouch = window.ontouchstart !== 'undefined';
 
+<<<<<<< HEAD
             this.hasMemoryProfiling =
                 window.performance !== 'undefined' &&
                     window.performance.memory !== 'undefined';
+=======
+            if (window.performance != undefined)
+                this.hasMemoryProfiling = (window.performance.memory);
+>>>>>>> Inheritance typing, isa, pool stats, pool tracing and hashlists
 
             if (/MSIE (\d+\.\d+);/.test(navigator.userAgent))
             {
                 this.ieVersion = new Number(RegExp.$1);
                 this.isIE = true;
             }
+
+            // determine what sound formats we can play
+            var check = new Audio();
+            if (check.canPlayType('audio/ogg')) this.canPlayOgg = true;
+            if (check.canPlayType('audio/mpeg')) this.canPlayMP3 = true;
+            if (check.canPlayType('audio/x-wav')) this.canPlayWav = true;
 
             this.requestAnimFrame = (function ()
             {
@@ -74,12 +88,20 @@ gamecore.Device = gamecore.Base.extend('gamecore.Device',
             // mouse lock
         },
 
-        getUsedHeap: function()
+        canPlay: function(format)
+        {
+            if (format.toLowerCase() === 'mp3' && this.canPlayMP3) return true;
+            if (format.toLowerCase() === 'ogg' && this.canPlayOgg) return true;
+            if (format.toLowerCase() === 'wav' && this.canPlayWav) return true;
+            return false;
+        },
+
+        getUsedHeap:function ()
         {
             return this.hasMemoryProfiling ? window.performance.memory.usedJSHeapSize : 0;
         },
 
-        getTotalHeap: function()
+        getTotalHeap:function ()
         {
             return this.hasMemoryProfiling ? window.performance.memory.totalJSHeapSize : 0;
         }

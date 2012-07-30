@@ -296,15 +296,12 @@
                 {
                     return function ()
                     {
-                        var tmp = this._super,
-                            ret;
+                        var tmp = this._super, ret;
 
-                        // Add a new ._super() method that is the same method
-                        // but on the super-class
+                        // Add a new ._super() method that is the same method but on the super-class
                         this._super = oldProps[name];
 
-                        // The method only need to be bound temporarily, so we
-                        // remove it when we're done executing
+                        // The method only need to be bound temporarily, so we remove it when we're done executing
                         ret = fn.apply(this, arguments);
                         this._super = tmp;
                         return ret;
@@ -553,9 +550,21 @@
          * new Todo("Trash").get()
          * @codeend
          * <p>Callback is available as a static and prototype method.</p>
-         * <h2>Demo</h2>
-         * @demo jquery/class/class.html
          *
+         * <h2>Typing<h2>
+         * Classes are automatically popuulating with three type related components:
+         *
+         * _types: a variable that contains an array of types of this class (extends history)
+         * _fullTypeName: a string representation of the extends hierarchy
+         * isA(string): a function you can call which will return true if the class is of a given type string.
+         * <p>
+         * Example:
+         * <p>
+         * Animal.extend('Tiger', {}, {});
+         * Tiger._types; // ['Animal', 'Tiger']
+         * Tiger._fullTypeName; // 'Animal | Tiger |"
+         * Tiger.isA('Animal'); // true
+         * </p>
          * @constructor Creating a new instance of an object that has extended jQuery.Class
          *     calls the init prototype function and returns a new instance of the class.
          *
@@ -734,6 +743,10 @@
         setup: function (baseClass, fullName)
         {
             this.defaults = extend(true, {}, baseClass.defaults, this.defaults);
+            if (this._types == undefined) this._types = [];
+            this._types.push(this.fullName);
+            if (this._fullTypeName == undefined) this._fullTypeName = '|';
+            this._fullTypeName += this.fullName + '|';
             return arguments;
         },
         rawInstance: function ()
@@ -778,6 +791,12 @@
             var _super_class = this,
                 _super = this.prototype,
                 name, shortName, namespace, prototype;
+
+            // append the isA function
+            this.isA = function(typeName)
+            {
+                return this._fullTypeName.indexOf('|'+typeName+'|') != -1;
+            };
 
             // Instantiate a base class (but only create the instance,
             // don't run the init constructor)
@@ -861,6 +880,7 @@
             }
 
             /* @Prototype*/
+
             return Class;
             /**
              * @function setup

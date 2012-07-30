@@ -21,7 +21,7 @@
  * runs? if so, why is it so consistent?).
  */
 
-gamecore.PerformanceMeasure = gamecore.Base.extend('PerformanceMeasure',
+gamecore.PerformanceMeasure = gamecore.Base.extend('gamecore.PerformanceMeasure',
 {
     history: [],
 
