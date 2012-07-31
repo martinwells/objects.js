@@ -30,9 +30,9 @@ use in games) can implement things like object pooling easily (and thus making i
 ## Typing
 Classes are now automatically populated with three type related components:
 
-_types: a variable that contains an array of types of this class (essentially the extends history)
-_fullTypeName: a string representation of the extends hierarchy
-isA(string): a function you can call which will return true if the class is of a given type string.
+* _types: a variable that contains an array of types of this class (essentially the extends history)
+* _fullTypeName: a string representation of the extends hierarchy
+* isA(string): a function you can call which will return true if the class is of a given type string.
 
 Example:
 ```javascript
@@ -41,7 +41,7 @@ Example:
  Tiger._fullTypeName; // 'Animal | Tiger |"
  Tiger.isA('Animal'); // true
 ```
-# Pool Stats
+## Pool Stats
 Use pool stats to dump the number of free and used objects in pools.
 ```javascript
  console.log( gamecore.Pool.getStats() );
@@ -50,7 +50,7 @@ This will dump stats for all currently created pools.
 
 Pool stats are enabled by default (and have very little overhead).
 
-# Pool Tracing
+## Pool Tracing
 Tracing is useful for tracking down where you've forgotten to release an object back into the pool.
 By turning on tracing for a pool, the system will track every acquire request with the source code file and line
 number. You can run your game with tracing on, and then dump the stats to see where acquire calls are being made
