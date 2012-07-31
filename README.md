@@ -40,12 +40,12 @@ Example:
  Tiger._types; // ['Animal', 'Tiger']
  Tiger._fullTypeName; // 'Animal | Tiger |"
  Tiger.isA('Animal'); // true
-
+```
 # Pool Stats
 Use pool stats to dump the number of free and used objects in pools.
 ```javascript
  console.log( gamecore.Pool.getStats() );
-
+```
 This will dump stats for all currently created pools.
 
 Pool stats are enabled by default (and have very little overhead).
@@ -58,31 +58,31 @@ in your code. The output is in the form of:
 
 ```javascript
  class.methodname (source file url:line:column) (usage count)
-
+```
 For example:
 ```javascript
  Class.pc.Input.fireAction (http://localhost:2020/playcraftjs/lib/input.js:320:46) (59)
-
+```
 Tracing is SLOW, so only turn it on for the pools you're debugging.
 
 To enable tracing, grab the pool class you're interested in and set tracing to true.
 ```javascript
  gamecore.Pool.getPool(Fighter).startTracing();
-
+```
 You can stop the tracing by calling:
 ```javascript
  gamecore.Pool.getPool(Fighter).stopTracing();
-
+```
 And dump the traces (along with the pool stats) by calling getStats().
 ```javascript
  console.log( gamecore.Pool.getPool(Fighter).getStats() );
-
+```
 If you want to enable tracing at the start of your code, you may want to manually force a pool to be constructed, for example:
 ```javascript
  var p = Fighter.create( );                      // make sure the pool has been created
  gamecore.Pool.getPool(Fighter).startTracing();  // enable tracing
  p.release();
-
+```
 
 
 # Using
