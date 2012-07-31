@@ -276,8 +276,6 @@ You can contribute to the core code by forking it and make a pull request.
 
 * Testing across a broader range of browsers.
 * A plugin system.
-* Stats for the pooling system (object counts by type etc).
-* Type introspection: RocketTurret.isa(‘EnemyBase’);
 * Memory leak protection (or detection) (autorelease?)
 * Interface enforcement at runtime (implements x)
 * Expand gamecore.Device to cover fullscreen api, mouse lock, audio, etc
