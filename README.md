@@ -26,6 +26,8 @@ Lastly, and probably most importantly, we open-sourced all this so that other li
 use in games) can implement things like object pooling easily (and thus making it useful in a gaming context).
 
 # Changes (7/30/12)
+See the [blog post](http://blog.getplaycraft.com/gamecore-js-updates-pool-tracing-class-typing-and-more-stats/) for
+more discussion (and comments if you have them).
 
 ## Typing
 Classes are now automatically populated with three type related components:
