@@ -25,6 +25,66 @@ for some general game shimming.
 Lastly, and probably most importantly, we open-sourced all this so that other library developers (creating code for
 use in games) can implement things like object pooling easily (and thus making it useful in a gaming context).
 
+# Changes (7/30/12)
+
+## Typing
+Classes are now automatically populated with three type related components:
+
+_types: a variable that contains an array of types of this class (essentially the extends history)
+_fullTypeName: a string representation of the extends hierarchy
+isA(string): a function you can call which will return true if the class is of a given type string.
+
+Example:
+```javascript
+ Animal.extend('Tiger', {}, {});
+ Tiger._types; // ['Animal', 'Tiger']
+ Tiger._fullTypeName; // 'Animal | Tiger |"
+ Tiger.isA('Animal'); // true
+
+# Pool Stats
+Use pool stats to dump the number of free and used objects in pools.
+```javascript
+ console.log( gamecore.Pool.getStats() );
+
+This will dump stats for all currently created pools.
+
+Pool stats are enabled by default (and have very little overhead).
+
+# Pool Tracing
+Tracing is useful for tracking down where you've forgotten to release an object back into the pool.
+By turning on tracing for a pool, the system will track every acquire request with the source code file and line
+number. You can run your game with tracing on, and then dump the stats to see where acquire calls are being made
+in your code. The output is in the form of:
+
+```javascript
+ class.methodname (source file url:line:column) (usage count)
+
+For example:
+```javascript
+ Class.pc.Input.fireAction (http://localhost:2020/playcraftjs/lib/input.js:320:46) (59)
+
+Tracing is SLOW, so only turn it on for the pools you're debugging.
+
+To enable tracing, grab the pool class you're interested in and set tracing to true.
+```javascript
+ gamecore.Pool.getPool(Fighter).startTracing();
+
+You can stop the tracing by calling:
+```javascript
+ gamecore.Pool.getPool(Fighter).stopTracing();
+
+And dump the traces (along with the pool stats) by calling getStats().
+```javascript
+ console.log( gamecore.Pool.getPool(Fighter).getStats() );
+
+If you want to enable tracing at the start of your code, you may want to manually force a pool to be constructed, for example:
+```javascript
+ var p = Fighter.create( );                      // make sure the pool has been created
+ gamecore.Pool.getPool(Fighter).startTracing();  // enable tracing
+ p.release();
+
+
+
 # Using
 
 ## gamceore.Class

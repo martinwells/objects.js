@@ -552,7 +552,7 @@
          * <p>Callback is available as a static and prototype method.</p>
          *
          * <h2>Typing<h2>
-         * Classes are automatically popuulating with three type related components:
+         * Classes are automatically populating with three type related components:
          *
          * _types: a variable that contains an array of types of this class (extends history)
          * _fullTypeName: a string representation of the extends hierarchy
