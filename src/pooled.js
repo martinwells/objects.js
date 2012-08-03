@@ -93,7 +93,7 @@ gamecore.Pool = gamecore.Base.extend('gamecore.Pool',
             var pool = this.pools.get(pooledObj.Class.fullName);
             if (pool == undefined)
                 throw "Oops, trying to release an object of type " + pooledObj.Class.fullName +
-                    " but no pool exists";
+                    " but no pool exists. Did you new an object instead of using create.";
 
             pool.release(pooledObj);
         },

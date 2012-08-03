@@ -117,8 +117,7 @@ gamecore.LinkedList = gamecore.Base('gamecore.LinkedList',
             } else
             {
                 // if the object is already in the list just throw an (can't add an object more than once)
-                // if you want to quickly check if an item is already in a list, then call list.getNode(obj)
-                // which will return null if it's not in this list
+                // if you want to quickly check if an item is already in a list, then call list.has(obj)
                 if (node.free == false)
                     throw 'Attempting to add object: ' + obj.getUniqueId() + ' twice to list ' + this.getUniqueId();
 
