@@ -231,13 +231,13 @@ To add/remove an item use:
 list.add(newItem);
 list.remove(newItem);
 ```
-You can iterate using the first and nextLinked members, such as:
+You can iterate using the first member of the list, then the next() method of each node, such as:
 ```javascript
-   var next = list.first;
-   while (next)
+   var node = list.first;
+   while (node)
    {
-       next.obj.DOSOMETHING();
-       next = next.nextLinked;
+       node.object().DOSOMETHING();
+       node = node.next();
    }
 ```
 ## gamecore.Device

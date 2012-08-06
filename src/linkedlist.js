@@ -49,13 +49,13 @@ gamecore.LinkedListNode = gamecore.Base('gamecore.LinkedNode', {},
  *   list.add(newItem);
  * </code>
  *
- * You can iterate using the first and nextLinked members, such as:
+ * You can iterate using the first and next members, such as:
  * <code>
- *   var next = list.first;
- *   while (next)
+ *   var node = list.first;
+ *   while (node)
  *   {
- *       next.obj.DOSOMETHING();
- *       next = next.nextLinked;
+ *       node.object().DOSOMETHING();
+ *       node = node.next();
  *   }
  * </code>
  *
@@ -245,7 +245,7 @@ gamecore.LinkedList = gamecore.Base('gamecore.LinkedList',
             while (a != null)
             {
                 this.debug("{" + a.obj.toString() + "} previous=" + ( a.prevLinked ? a.prevLinked.obj : "NULL"));
-                a = a.nextLinked;
+                a = a.next();
             }
             this.debug("===================================");
             this.debug("Last: {" + (this.last ? this.last.obj : 'NULL') + "} " +
