@@ -15,7 +15,23 @@ gamecore.LinkedListNode = gamecore.Base('gamecore.LinkedNode', {},
     obj: null,          // the object reference
     nextLinked: null,   // link to next object in the list
     prevLinked: null,   // link to previous object in the list
-    free: true
+    free: true,
+
+    next: function()
+    {
+        return this.nextLinked;
+    },
+
+    object: function()
+    {
+        return this.obj;
+    },
+
+    prev: function()
+    {
+        return this.prevLinked;
+    }
+
 });
 
 /**

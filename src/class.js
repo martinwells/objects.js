@@ -1,6 +1,6 @@
 /**
  * gamecore.js - Copyright 2012 Playcraft Labs, Inc. (see licence.txt)
- * class.js
+  * class.js
  * Classes and objects
  */
 
