@@ -11,9 +11,8 @@
  * subsequently garbage collection). It also serves as a very high speed, minimal overhead
  * collection for small numbers of objects.
  * <p>
- * This class maintains mutual set of doubly-linked lists in order to differentiate between
- * objects that are in use and those that are unallocated from the pool. This allows for much
- * faster cycling of only the in-use objects.
+ * This class maintains mutual an array of objects which are free. If you wish to maintain a list of both
+ * free and used then see the gamecore.DualPool.
  * <p>
  * Pools are managed by class type, and will auto-expand as required. You can create a custom initial pool
  * size by deriving from the Pool class and statically overriding INITIAL_POOL_SIZE.
@@ -236,10 +235,55 @@ gamecore.Pool = gamecore.Base.extend('gamecore.Pool',
     });
 
 /**
- * A pooling system that keeps both free and used lists, slightly slower than the default array-based pool
- * but provides a way to track objects that have been handed out (useful for entity tracking)
  * @class gamecore.DualPool
+ * Easy (high-performance) object pooling
+ *
+ * A pool of objects for use in situations where you want to minimize object life cycling (and
+ * subsequently garbage collection). It also serves as a very high speed, minimal overhead
+ * collection for small numbers of objects.
+ * <p>
+ * This class maintains mutual set of doubly-linked lists in order to differentiate between
+ * objects that are in use and those that are unallocated from the pool. This allows for much
+ * faster cycling of only the in-use objects.
+ * <p>
+ * Pools are managed by class type, and will auto-expand as required. You can create a custom initial pool
+ * size by deriving from the Pool class and statically overriding INITIAL_POOL_SIZE.
+ * <p>
+ * Keep in mind that objects that are pooled are not constructed; they are "reset" when handed out.
+ * You need to "acquire" one and then reset its state, usually via a static create factory method.
+ * <p>
+ * Example:
+ * <code>
+ * Point = gamecore.Pooled('Point',
+ * {
+ *   // Static constructor
+ *   create:function (x, y)
+ *   {
+ *      var n = this._super();
+ *      n.x = x;
+ *      n.y = y;
+ *      return n;
+ *   }
+ * },
+ * {
+ *    x:0, y:0,   // instance
+ *
+ *    init: function(x, y)
+ *    {
+ *       this.x = x;
+ *       this.y = y;
+ *    }
+ * }
+ * </code>
+ * To then access the object from the pool, use create, instead of new. Then release it.
+ * <code>
+ * var p = Point.create(100, 100);
+ * // ... do something
+ * p.release();
+ * </code>
+ *
  */
+
 gamecore.DualPool = gamecore.Pool.extend('gamecore.DualPool',
     {
         getStats:function ()
