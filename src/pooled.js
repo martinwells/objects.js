@@ -54,23 +54,19 @@
  */
 
 gamecore.Pool = gamecore.Base.extend('gamecore.Pool',
-
-    ///
-    /// STATICS
-    ///
     {
-        INITIAL_POOL_SIZE: 1,
+        INITIAL_POOL_SIZE:1,
 
-        pools: new gamecore.Hashtable(), // all your pools belong to us
-        totalPooled: 0,
-        totalUsed: 0,
+        pools:new gamecore.Hashtable(), // all your pools belong to us
+        totalPooled:0,
+        totalUsed:0,
 
         /**
          * Acquire an object from a pool based on the class[name]. Typically this method is
          * automatically called from
          * @param classType Class of object to create
          */
-        acquire: function(classType)
+        acquire:function (classType)
         {
             var pool = this.getPool(classType);
             if (pool == undefined || pool == null)
@@ -88,7 +84,7 @@ gamecore.Pool = gamecore.Base.extend('gamecore.Pool',
          * Releases an object back into it's corresponding object pool
          * @param pooledObj Object to return to the pool
          */
-        release: function(pooledObj)
+        release:function (pooledObj)
         {
             var pool = this.pools.get(pooledObj.Class.fullName);
             if (pool == undefined)
@@ -101,17 +97,17 @@ gamecore.Pool = gamecore.Base.extend('gamecore.Pool',
         /**
          * Returns the pool associated with the given classType, or null if no pool currently exists
          */
-        getPool: function(classType)
+        getPool:function (classType)
         {
             return this.pools.get(classType.fullName);
         },
 
-        getStats: function()
+        getStats:function ()
         {
             var s = '';
 
             var keys = this.pools.keys();
-            for (var i=0; i < keys.length; i++)
+            for (var i = 0; i < keys.length; i++)
             {
                 var key = keys[i];
                 var pool = this.pools.get(key);
@@ -121,18 +117,10 @@ gamecore.Pool = gamecore.Base.extend('gamecore.Pool',
             return s;
         }
 
-
     },
-    ///
-    /// INSTANCE
-    ///
     {
-        freeList: null,
-        usedList: null,
-        traces: null,
-        tracing: false,
-        initialSize:   0, // size of the initial object pool
-        classType:  null, // the class of object in this pool
+        freeList:null,
+        expansion: 1,
 
         /**
          * Constructs a pool using a base of objects passed in as an array.
@@ -143,24 +131,10 @@ gamecore.Pool = gamecore.Base.extend('gamecore.Pool',
         {
             this._super();
             this.classType = classType;
-            this.freeList = new gamecore.LinkedList();
-            this.usedList = new gamecore.LinkedList();
+            this.freeList = [];
 
             // instantiate the initial objects for the pool
-            this.initialSize = initial;
             this.expand(initial);
-        },
-
-        startTracing: function()
-        {
-            if (this.tracing) return;
-            this.tracing = true;
-            this.traces = new gamecore.Hashtable();
-        },
-
-        stopTracing: function()
-        {
-            this.tracing = false;
         },
 
         /**
@@ -169,12 +143,153 @@ gamecore.Pool = gamecore.Base.extend('gamecore.Pool',
          * shouldn't need to use this.
          * @param howMany Number of new objects you want to add
          */
-        expand: function(howMany)
+        expand:function (howMany)
+        {
+            gamecore.Pool.totalPooled += howMany;
+            for (var i = 0; i < howMany; i++)
+                this.freeList.push(new this.classType());
+        },
+
+        getFreeCount: function()
+        {
+            return this.freeList.length;
+        },
+
+        /**
+         * Returns the next free object by moving it from the free pool to the used
+         * one. If no free objects are available it returns the oldest from the used
+         * pool.
+         * access to the object
+         */
+        acquire:function ()
+        {
+            // check if we have anymore to give out
+            if (this.freeList.length <= 0)
+            {
+                // create some more space (expand by 20%, minimum 1)
+                this.expansion = Math.round(this.expansion*1.2)+1;
+                this.expand(this.expansion);
+            }
+
+            if (this.tracing)
+            {
+                var stack = printStackTrace();
+                var pos = stack.length - 1;
+                while (stack[pos].indexOf('Class.addTo') == 0 && pos > 0)
+                    pos--;
+                var count = this.traces.get(stack[pos]);
+                if (count == null)
+                    this.traces.put(stack[pos], { value:1 });
+                else
+                    count.value++;
+            }
+
+            return this.freeList.pop();
+        },
+
+        /**
+         * Releases an object by moving it from the used list back to the free list.
+         * @param obj {pc.Base} The obj to release back into the pool
+         */
+        release:function (obj)
+        {
+            this.freeList.push(obj);
+        },
+
+        getStats:function ()
+        {
+            var s = this.Class.fullName + ' stats: ' + this.freeList.count + ' free.\n';
+
+            if (this.tracing)
+            {
+                s += 'TRACING\n';
+                var traceKeys = this.traces.keys();
+                for (var k in traceKeys)
+                    s += traceKeys[k] + ' (' + this.traces.get(traceKeys[k]).value + ')\n';
+            }
+            return s;
+        },
+
+        dump:function (msg)
+        {
+            this.info('================== ' + msg + ' ===================');
+            this.info('FREE');
+            this.freeList.dump();
+        },
+
+        /**
+         * Returns the number of objects in the pool
+         */
+        size:function ()
+        {
+            return this.freeList.length;
+        },
+
+        /**
+         * Returns the LinkedList of currently free objects in the pool
+         */
+        getFreeList:function ()
+        {
+            return this.freeList;
+        }
+
+    });
+
+/**
+ * A pooling system that keeps both free and used lists, slightly slower than the default array-based pool
+ * but provides a way to track objects that have been handed out (useful for entity tracking)
+ * @class gamecore.DualPool
+ */
+gamecore.DualPool = gamecore.Pool.extend('gamecore.DualPool',
+    {
+        getStats:function ()
+        {
+            var s = '';
+
+            var keys = this.pools.keys();
+            for (var i = 0; i < keys.length; i++)
+            {
+                var key = keys[i];
+                var pool = this.pools.get(key);
+                s += key + ' (free: ' + pool.freeList.length() + ' used: ' + pool.usedList.length() + ')\n';
+            }
+            return s;
+        }
+    },
+    ///
+    /// INSTANCE
+    ///
+    {
+        freeList:null,
+        usedList:null,
+
+        /**
+         * Constructs a pool using a base of objects passed in as an array.
+         * @param classType Class name of the type of objects in the pool
+         * @param initial Starting number of objects in the pool
+         */
+        init:function (classType, initial)
+        {
+            this.classType = classType;
+            this.usedList = new gamecore.LinkedList();
+            this.freeList = new gamecore.LinkedList();
+
+            // instantiate the initial objects for the pool
+            this.expand(initial);
+        },
+
+        /**
+         * Expand the pool of objects by constructing a bunch of new ones. The pool will
+         * automatically expand itself by 10% each time it runs out of space, so generally you
+         * shouldn't need to use this.
+         * @param howMany Number of new objects you want to add
+         */
+        expand:function (howMany)
         {
             //this.info('Expanding ' + this.classType.fullName + ' pool from ' + this.size() +
             //    ' to ' + (this.size() + howMany) + ' objects');
             gamecore.Pool.totalPooled += howMany;
-            for (var i=0; i < howMany; i++)
+            for (var i = 0; i < howMany; i++)
                 this.freeList.add(new this.classType());
         },
 
@@ -184,32 +299,29 @@ gamecore.Pool = gamecore.Base.extend('gamecore.Pool',
          * pool.
          * access to the object
          */
-        returnObj: null,
+        returnObj:null,
 
         acquire:function ()
         {
             // check if we have anymore to give out
             if (this.freeList.first == null)
-                // create some more space (expand by 20%, minimum 1)
+            // create some more space (expand by 20%, minimum 1)
                 this.expand(Math.round(this.size() / 5) + 1);
 
             this.returnObj = this.freeList.first.obj;
             this.freeList.remove(this.returnObj);
             this.returnObj.destroyed = false;
-            gamecore.Pool.totalUsed++;
-
             this.usedList.add(this.returnObj);
-            //console.log(' acquiring: ' + this.returnObj.Class.fullName);
 
             if (this.tracing)
             {
                 var stack = printStackTrace();
-                var pos = stack.length-1;
-                while (stack[pos].indexOf('Class.addTo')== 0 && pos > 0)
+                var pos = stack.length - 1;
+                while (stack[pos].indexOf('Class.addTo') == 0 && pos > 0)
                     pos--;
                 var count = this.traces.get(stack[pos]);
                 if (count == null)
-                    this.traces.put(stack[pos], { value: 1 });
+                    this.traces.put(stack[pos], { value:1 });
                 else
                     count.value++;
             }
@@ -225,27 +337,9 @@ gamecore.Pool = gamecore.Base.extend('gamecore.Pool',
         {
             this.freeList.add(obj);
             this.usedList.remove(obj);
-            obj.destroyed = true;
-            gamecore.Pool.totalUsed--;
-
-            //console.log(' releasing: ' + obj.Class.fullName);
         },
 
-        getStats: function()
-        {
-            var s = this.Class.fullName + ' stats: ' + this.freeList.count + ' free, ' + this.usedList.count + ' in use.\n';
-
-            if (this.tracing)
-            {
-                s += 'TRACING\n';
-                var traceKeys = this.traces.keys();
-                for (var k in traceKeys)
-                    s += traceKeys[k] + ' (' + this.traces.get(traceKeys[k]).value + ')\n';
-            }
-            return s;
-        },
-
-        dump: function(msg)
+        dump:function (msg)
         {
             this.info('================== ' + msg + ' ===================');
             this.info('FREE');
@@ -257,31 +351,19 @@ gamecore.Pool = gamecore.Base.extend('gamecore.Pool',
         /**
          * Returns the number of objects in the pool
          */
-        size: function()
+        size:function ()
         {
             return this.freeList.count + this.usedList.count;
-        },
-
-        /**
-         * Returns the LinkedList of currently free objects in the pool
-         */
-        getFreeList: function()
-        {
-            return this.freeList;
         },
 
         /**
          * Returns the LinkedList of current used objects in the pool
          * @return {*}
          */
-        getUsedList: function()
+        getUsedList:function ()
         {
             return this.usedList;
         }
-
-
-
-
     });
 
 
@@ -299,12 +381,12 @@ gamecore.Pooled = gamecore.Base('gamecore.Pooled',
          * should be called using this._super from the Class.create that derives from this.
          * @returns An object from the pool
          */
-        create: function ()
+        create:function ()
         {
             return gamecore.Pool.acquire(this);
         },
 
-        getPool: function()
+        getPool:function ()
         {
             return gamecore.Pool.getPool(this);
         }
@@ -314,20 +396,69 @@ gamecore.Pooled = gamecore.Base('gamecore.Pooled',
     /// INSTANCE
     ///
     {
-        destroyed: false,
+        destroyed:false,
 
-        init: function()
+        init:function ()
         {
             this._super();
         },
 
-        release: function ()
+        release:function ()
         {
             this.onRelease();
             gamecore.Pool.release(this);
         },
 
-        onRelease: function()
+        onRelease:function ()
+        {
+        }
+
+    });
+
+
+/**
+ * @class gamecore.DualPooled
+ * Used as a base class for objects which are life cycle managed in an object pool (the DualPool edition)
+ */
+gamecore.DualPooled = gamecore.Base('gamecore.DualPooled',
+    ///
+    /// STATICS
+    ///
+    {
+        /**
+         * Static factory method for creating a new object based on its class. This method
+         * should be called using this._super from the Class.create that derives from this.
+         * @returns An object from the pool
+         */
+        create:function ()
+        {
+            return gamecore.DualPool.acquire(this);
+        },
+
+        getPool:function ()
+        {
+            return gamecore.DualPool.getPool(this);
+        }
+
+    },
+    ///
+    /// INSTANCE
+    ///
+    {
+        destroyed:false,
+
+        init:function ()
+        {
+            this._super();
+        },
+
+        release:function ()
+        {
+            this.onRelease();
+            gamecore.DualPool.release(this);
+        },
+
+        onRelease:function ()
         {
         }
 
