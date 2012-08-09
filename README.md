@@ -35,6 +35,7 @@ The default pooling mechanism is now based on a single-list array, which is slig
 If you want to use the free/used dual list, then extend gamecore.DualPooled instead of gamecore.Pooled.
 
 
+
 # Changes (7/30/12)
 See the [blog post](http://blog.getplaycraft.com/gamecore-js-updates-pool-tracing-class-typing-and-more-stats/) for
 more discussion (and comments if you have them).
