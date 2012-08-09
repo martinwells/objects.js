@@ -25,6 +25,16 @@ for some general game shimming.
 Lastly, and probably most importantly, we open-sourced all this so that other library developers (creating code for
 use in games) can implement things like object pooling easily (and thus making it useful in a gaming context).
 
+
+# Changes (8/9/12)
+See the [blog post](http://blog.getplaycraft.com/array-pooling/) for
+more discussion (and comments if you have them).
+
+## Array Pooling
+The default pooling mechanism is now based on a single-list array, which is slightly faster than a linked list.
+If you want to use the free/used dual list, then extend gamecore.DualPooled instead of gamecore.Pooled.
+
+
 # Changes (7/30/12)
 See the [blog post](http://blog.getplaycraft.com/gamecore-js-updates-pool-tracing-class-typing-and-more-stats/) for
 more discussion (and comments if you have them).

@@ -110,7 +110,7 @@ gamecore.Pool = gamecore.Base.extend('gamecore.Pool',
             {
                 var key = keys[i];
                 var pool = this.pools.get(key);
-                s += key + ' (free: ' + pool.freeList.length() + ' used: ' + pool.usedList.length() + ')\n';
+                s += key + ' (free: ' + pool.freeList.length  + ')\n';
             }
 
             return s;
@@ -145,6 +145,10 @@ gamecore.Pool = gamecore.Base.extend('gamecore.Pool',
         expand:function (howMany)
         {
             gamecore.Pool.totalPooled += howMany;
+
+            //debug: if you want to track expansion
+            // this.debug('expanding ' + this.classType.fullName + ' by ' + howMany + ' total=' + gamecore.Pool.totalPooled);
+
             for (var i = 0; i < howMany; i++)
                 this.freeList.push(new this.classType());
         },
@@ -197,7 +201,7 @@ gamecore.Pool = gamecore.Base.extend('gamecore.Pool',
 
         getStats:function ()
         {
-            var s = this.Class.fullName + ' stats: ' + this.freeList.count + ' free.\n';
+            var s = this.Class.fullName + ' stats: ' + this.freeList.length + ' free.\n';
 
             if (this.tracing)
             {
