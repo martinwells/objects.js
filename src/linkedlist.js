@@ -177,6 +177,93 @@ gamecore.LinkedList = gamecore.Base('gamecore.LinkedList',
         },
 
         /**
+         * Moves this item upwards in the list
+         * @param obj
+         */
+        moveUp: function(obj)
+        {
+            this.dump('before move up');
+            var c = this.getNode(obj);
+            if (!c) throw "Oops, trying to move an object that isn't in the list";
+            if (c.prevLinked == null) return; // already first, ignore
+
+            // This operation makes C swap places with B:
+            // A <-> B <-> C <-> D
+            // A <-> C <-> B <-> D
+
+            var b = c.prevLinked;
+            var a = b.prevLinked;
+
+            // fix last
+            if (c == this.last)
+                this.last = b;
+
+            var oldCNext = c.nextLinked;
+
+            if (a)
+                a.nextLinked = c;
+            c.nextLinked = b;
+            c.prevLinked = b.prevLinked;
+
+            b.nextLinked = oldCNext;
+            b.prevLinked = c;
+
+            // check to see if we are now first
+            if (this.first == b)
+                this.first = c;
+        },
+
+        /**
+         * Moves this item downwards in the list
+         * @param obj
+         */
+        moveDown:function (obj)
+        {
+            var b = this.getNode(obj);
+            if (!b) throw "Oops, trying to move an object that isn't in the list";
+            if (b.nextLinked == null) return; // already last, ignore
+
+            // This operation makes B swap places with C:
+            // A <-> B <-> C <-> D
+            // A <-> C <-> B <-> D
+
+            var c = b.nextLinked;
+            this.moveUp(c.obj);
+
+            // check to see if we are now last
+            if (this.last == c)
+                this.last = b;
+        },
+
+        moveToFirst: function(obj)
+        {
+            this.dump('before move first');
+            var b = this.getNode(obj);
+            if (!b) throw "Oops, trying to move an object that isn't in the list";
+            if (b == this.first) return;
+
+            var wasFirst = this.first;
+            wasFirst.prevLinked = b;
+            b.nextLinked = wasFirst;
+            b.prevLinked = null;
+            this.first = b;
+            this.dump('after move first');
+        },
+
+        moveToLast:function (obj)
+        {
+            var b = this.getNode(obj);
+            if (!b) throw "Oops, trying to move an object that isn't in the list";
+            if (b == this.last) return;
+
+            var wasLast = this.last;
+            wasLast.nextLinked = b;
+            b.nextLinked = null;
+            b.prevLinked = wasLast;
+            this.last = b;
+        },
+
+        /**
          * Removes an item from the list
          * @param obj The object to remove
          * @returns boolean true if the item was removed, false if the item was not on the list
