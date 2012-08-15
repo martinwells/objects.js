@@ -235,34 +235,6 @@ gamecore.LinkedList = gamecore.Base('gamecore.LinkedList',
                 this.last = b;
         },
 
-        moveToFirst: function(obj)
-        {
-            this.dump('before move first');
-            var b = this.getNode(obj);
-            if (!b) throw "Oops, trying to move an object that isn't in the list";
-            if (b == this.first) return;
-
-            var wasFirst = this.first;
-            wasFirst.prevLinked = b;
-            b.nextLinked = wasFirst;
-            b.prevLinked = null;
-            this.first = b;
-            this.dump('after move first');
-        },
-
-        moveToLast:function (obj)
-        {
-            var b = this.getNode(obj);
-            if (!b) throw "Oops, trying to move an object that isn't in the list";
-            if (b == this.last) return;
-
-            var wasLast = this.last;
-            wasLast.nextLinked = b;
-            b.nextLinked = null;
-            b.prevLinked = wasLast;
-            this.last = b;
-        },
-
         /**
          * Removes an item from the list
          * @param obj The object to remove
