@@ -147,7 +147,7 @@ gamecore.Pool = gamecore.Base.extend('gamecore.Pool',
             gamecore.Pool.totalPooled += howMany;
 
             //debug: if you want to track expansion
-            // this.debug('expanding ' + this.classType.fullName + ' by ' + howMany + ' total=' + gamecore.Pool.totalPooled);
+            //this.debug('expanding ' + this.classType.fullName + ' by ' + howMany + ' total=' + gamecore.Pool.totalPooled);
 
             for (var i = 0; i < howMany; i++)
                 this.freeList.push(new this.classType());
@@ -290,6 +290,18 @@ gamecore.Pool = gamecore.Base.extend('gamecore.Pool',
 
 gamecore.DualPool = gamecore.Pool.extend('gamecore.DualPool',
     {
+        acquire:function (classType)
+        {
+            var pool = this.getPool(classType);
+            if (pool == undefined || pool == null)
+            {
+                pool = new gamecore.DualPool(classType, this.INITIAL_POOL_SIZE);
+                this.pools.put(classType.fullName, pool);
+            }
+
+            return pool.acquire();
+        },
+
         getStats:function ()
         {
             var s = '';
@@ -334,8 +346,8 @@ gamecore.DualPool = gamecore.Pool.extend('gamecore.DualPool',
          */
         expand:function (howMany)
         {
-            //this.info('Expanding ' + this.classType.fullName + ' pool from ' + this.size() +
-            //    ' to ' + (this.size() + howMany) + ' objects');
+//            this.info('Expanding ' + this.classType.fullName + ' pool from ' + this.size() +
+//                ' to ' + (this.size() + howMany) + ' objects');
             gamecore.Pool.totalPooled += howMany;
             for (var i = 0; i < howMany; i++)
                 this.freeList.add(new this.classType());
