@@ -11,28 +11,28 @@
  * @see gamecore.LinkedList
  */
 gamecore.LinkedListNode = gamecore.Base('gamecore.LinkedNode', {},
-{
-    obj: null,          // the object reference
-    nextLinked: null,   // link to next object in the list
-    prevLinked: null,   // link to previous object in the list
-    free: true,
-
-    next: function()
     {
-        return this.nextLinked;
-    },
+        obj:null, // the object reference
+        nextLinked:null, // link to next object in the list
+        prevLinked:null, // link to previous object in the list
+        free:true,
 
-    object: function()
-    {
-        return this.obj;
-    },
+        next:function ()
+        {
+            return this.nextLinked;
+        },
 
-    prev: function()
-    {
-        return this.prevLinked;
-    }
+        object:function ()
+        {
+            return this.obj;
+        },
 
-});
+        prev:function ()
+        {
+            return this.prevLinked;
+        }
+
+    });
 
 /**
  * @class gamecore.LinkedList
@@ -80,15 +80,15 @@ gamecore.LinkedList = gamecore.Base('gamecore.LinkedList',
     // INSTANCE
     //
     {
-        first:  null,
-        last:   null,
-        count:  0,
-        objToNodeMap: null,   // a quick lookup list to map linked list nodes to objects
+        first:null,
+        last:null,
+        count:0,
+        objToNodeMap:null, // a quick lookup list to map linked list nodes to objects
 
         /**
          * Constructs a new linked list
          */
-        init: function()
+        init:function ()
         {
             this._super();
             this.objToNodeMap = new gamecore.Hashtable();
@@ -98,7 +98,7 @@ gamecore.LinkedList = gamecore.Base('gamecore.LinkedList',
          * Get the LinkedListNode for this object.
          * @param obj The object to get the node for
          */
-        getNode: function(obj)
+        getNode:function (obj)
         {
             // objects added to a list must implement a getUniqueId which returns a unique object identifier string
             // or just extend gamecore.Base to get it for free
@@ -109,7 +109,7 @@ gamecore.LinkedList = gamecore.Base('gamecore.LinkedList',
          * Adds a specific node to the list -- typically only used internally unless you're doing something funky
          * Use add() to add an object to the list, not this.
          */
-        addNode: function(obj)
+        addNode:function (obj)
         {
             var node = new gamecore.LinkedNode();
             node.obj = obj;
@@ -124,7 +124,7 @@ gamecore.LinkedList = gamecore.Base('gamecore.LinkedList',
          * Add an item to the list
          * @param obj The object to add
          */
-        add: function(obj)
+        add:function (obj)
         {
             var node = this.getNode(obj);
             if (node == null)
@@ -170,7 +170,7 @@ gamecore.LinkedList = gamecore.Base('gamecore.LinkedList',
             if (this.showDebug) this.dump('after add');
         },
 
-        has: function(obj)
+        has:function (obj)
         {
             var node = this.getNode(obj);
             return !(node == null || node.free == true);
@@ -180,7 +180,7 @@ gamecore.LinkedList = gamecore.Base('gamecore.LinkedList',
          * Moves this item upwards in the list
          * @param obj
          */
-        moveUp: function(obj)
+        moveUp:function (obj)
         {
             this.dump('before move up');
             var c = this.getNode(obj);
@@ -235,18 +235,39 @@ gamecore.LinkedList = gamecore.Base('gamecore.LinkedList',
                 this.last = b;
         },
 
+        sort:function (compare)
+        {
+            // take everything off the list and put it in an array
+            var sortArray = [];
+            var node = this.first;
+            while (node)
+            {
+                sortArray.push(node.object());
+                node = node.next();
+            }
+
+            this.clear();
+
+            // sort it
+            sortArray.sort(compare);
+
+            // then put it back
+            for (var i = 0; i < sortArray.length; i++)
+                this.add(sortArray[i]);
+        },
+
         /**
          * Removes an item from the list
          * @param obj The object to remove
          * @returns boolean true if the item was removed, false if the item was not on the list
          */
-        remove: function(obj)
+        remove:function (obj)
         {
             if (this.showDebug) this.dump('before remove of ' + obj);
             var node = this.getNode(obj);
             if (node == null || node.free == true)
                 return false; // ignore this error (trying to remove something not there
-                //throw ('Error: trying to remove a node (' + obj + ') that isnt on the list ');
+            //throw ('Error: trying to remove a node (' + obj + ') that isnt on the list ');
 
             // pull this object out and tie up the ends
             if (node.prevLinked != null)
@@ -273,7 +294,7 @@ gamecore.LinkedList = gamecore.Base('gamecore.LinkedList',
         /**
          * Clears the list out
          */
-        clear: function()
+        clear:function ()
         {
             // sweep the list and free all the nodes
             var next = this.first;
@@ -289,7 +310,7 @@ gamecore.LinkedList = gamecore.Base('gamecore.LinkedList',
         /**
          * @return number of items in the list
          */
-        length: function()
+        length:function ()
         {
             return this.count;
         },
@@ -297,7 +318,7 @@ gamecore.LinkedList = gamecore.Base('gamecore.LinkedList',
         /**
          * Outputs the contents of the current list. Usually for debugging.
          */
-        dump: function(msg)
+        dump:function (msg)
         {
             this.debug('====================' + msg + '=====================');
             var a = this.first;
@@ -308,7 +329,7 @@ gamecore.LinkedList = gamecore.Base('gamecore.LinkedList',
             }
             this.debug("===================================");
             this.debug("Last: {" + (this.last ? this.last.obj : 'NULL') + "} " +
-                       "First: {" + (this.first ? this.first.obj : 'NULL') + "}");
+                "First: {" + (this.first ? this.first.obj : 'NULL') + "}");
         }
 
     });
