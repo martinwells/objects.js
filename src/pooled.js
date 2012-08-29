@@ -110,7 +110,7 @@ gamecore.Pool = gamecore.Base.extend('gamecore.Pool',
             {
                 var key = keys[i];
                 var pool = this.pools.get(key);
-                s += key + ' (free: ' + pool.freeList.length  + ')\n';
+                s += key + ': ' + pool.getStats()  + '\n';
             }
 
             return s;
@@ -120,6 +120,7 @@ gamecore.Pool = gamecore.Base.extend('gamecore.Pool',
     {
         freeList:null,
         expansion: 1,
+        traces: null,
 
         /**
          * Constructs a pool using a base of objects passed in as an array.
@@ -134,6 +135,22 @@ gamecore.Pool = gamecore.Base.extend('gamecore.Pool',
 
             // instantiate the initial objects for the pool
             this.expand(initial);
+        },
+
+
+        startTracing:function ()
+        {
+            if (this.tracing) return;
+            this.tracing = true;
+            if (this.traces)
+                this.traces.clear();
+            else
+                this.traces = new gamecore.Hashtable();
+        },
+
+        stopTracing:function ()
+        {
+            this.tracing = false;
         },
 
         /**
