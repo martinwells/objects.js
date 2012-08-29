@@ -59,14 +59,6 @@ gamecore.LinkedListNode = gamecore.Base('gamecore.LinkedNode', {},
  *   }
  * </code>
  *
- * Todo: consider moving away from LinkedListNode by adding properties to the contained object that are unique to each
- * list, i.e. clientObj['' + this.uniqueId + '_linkedlist'] or some such. Adding properties feels messy though, and a
- * performance test is needed. The offsetting advantage is we don't need to lookup nodes (probably only a small increase
- * in performance), less memory for large lists and you can place an object in a list more than once (making the prop
- * addition an array?).
- *
- * The other advantage of moving to a property node model would be objects would no longer need to implement a uniqueId
- * to be contained in a list (cleaner).
  */
 
 gamecore.LinkedList = gamecore.Base('gamecore.LinkedList',
