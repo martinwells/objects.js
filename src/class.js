@@ -188,7 +188,7 @@
              */
             niceName: function (s)
             {
-                str.classize(parts[i], ' ');
+                return str.classize(s, ' ');
             },
 
             /**
