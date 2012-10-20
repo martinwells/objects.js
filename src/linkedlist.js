@@ -6,27 +6,36 @@
 
 /**
  * @class gamecore.LinkedNode
- * @extends gamecore.Base
- * Internal node storage class for gamecore.Linkedist
- * @see gamecore.LinkedList
+ * @description
+ * Represents an item stored in a linked list.
  */
 gamecore.LinkedListNode = gamecore.Base('gamecore.LinkedNode', {},
+    /** @lends gamecore.LinkedListNode.prototype */
     {
         obj:null, // the object reference
         nextLinked:null, // link to next object in the list
         prevLinked:null, // link to previous object in the list
         free:true,
 
+        /**
+         * @return {pc.LinkedListNode} Next node on the list
+         */
         next:function ()
         {
             return this.nextLinked;
         },
 
+        /**
+         * @return {Object} Object this node represents on the list
+         */
         object:function ()
         {
             return this.obj;
         },
 
+        /**
+         * @return {pc.LinkedListNode} Prev node on the list
+         */
         prev:function ()
         {
             return this.prevLinked;
@@ -36,41 +45,33 @@ gamecore.LinkedListNode = gamecore.Base('gamecore.LinkedNode', {},
 
 /**
  * @class gamecore.LinkedList
- * @extends gamecore.Base
- *
+ * @description
  * A high-speed doubly linked list of objects. Note that for speed reasons (using a dictionary lookup of
  * cached nodes) there can only be a single instance of an object in the list at the same time. Adding the same
  * object a second time will result in a silent return from the add method.
- *
+ * <p>
  * In order to keep a track of node links, an object must be able to identify itself with a getUniqueId() function.
- *
+ * <p>
  * To add an item use:
- * <code>
+ * <pre><code>
  *   list.add(newItem);
- * </code>
- *
+ * </code></pre>
+ * <p>
  * You can iterate using the first and next members, such as:
- * <code>
+ * <pre><code>
  *   var node = list.first;
  *   while (node)
  *   {
  *       node.object().DOSOMETHING();
  *       node = node.next();
  *   }
- * </code>
- *
+ * </code></pre>
  */
-
 gamecore.LinkedList = gamecore.Base('gamecore.LinkedList',
-
-    //
-    // STATICS
-    //
+    /** @lends gamecore.LinkedList */
     {
     },
-    //
-    // INSTANCE
-    //
+    /** @lends gamecore.LinkedList.prototype */
     {
         first:null,
         last:null,
@@ -324,6 +325,7 @@ gamecore.LinkedList = gamecore.Base('gamecore.LinkedList',
                 "First: {" + (this.first ? this.first.obj : 'NULL') + "}");
         }
 
-    });
+    })
+;
 
 

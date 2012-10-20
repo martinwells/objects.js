@@ -21,7 +21,7 @@
  * You need to "acquire" one and then reset its state, usually via a static create factory method.
  * <p>
  * Example:
- * <code>
+ * <pre><code>
  * Point = gamecore.Pooled('Point',
  * {
  *   // Static constructor
@@ -42,28 +42,34 @@
  *       this.y = y;
  *    }
  * }
- * </code>
+ * </code></pre>
  * To then access the object from the pool, use create, instead of new. Then release it.
- * <code>
+ * <pre><code>
  * var p = Point.create(100, 100);
  * // ... do something
  * p.release();
- * </code>
+ * </code></pre>
  *
  */
 
 gamecore.Pool = gamecore.Base.extend('gamecore.Pool',
+    /** @lends gamecore.Pool */
     {
+        /** Initial size of all object pools */
         INITIAL_POOL_SIZE:1,
 
-        pools:new gamecore.Hashtable(), // all your pools belong to us
+        /** Hashtable of ALL the object pools */
+        pools:new gamecore.Hashtable(),
+        /** total objects in all pools */
         totalPooled:0,
+        /** total objects in use right now */
         totalUsed:0,
 
         /**
          * Acquire an object from a pool based on the class[name]. Typically this method is
-         * automatically called from
-         * @param classType Class of object to create
+         * automatically called from Pooled.create method and should not be used directly.
+         * @param {String} classType Class of object to create
+         * @return {gamecore.Pooled} A shiny object you can then configure
          */
         acquire:function (classType)
         {
@@ -81,7 +87,7 @@ gamecore.Pool = gamecore.Base.extend('gamecore.Pool',
 
         /**
          * Releases an object back into it's corresponding object pool
-         * @param pooledObj Object to return to the pool
+         * @param {gamecore.Pooled} pooledObj Object to return to the pool
          */
         release:function (pooledObj)
         {
@@ -94,13 +100,18 @@ gamecore.Pool = gamecore.Base.extend('gamecore.Pool',
         },
 
         /**
-         * Returns the pool associated with the given classType, or null if no pool currently exists
+         * Returns the pool associated with the given classType, or null if no pool currently exists.
+         * @return {gamecore.Pool} Object pool associated with the class type
          */
         getPool:function (classType)
         {
             return this.pools.get(classType.fullName);
         },
 
+        /**
+         * Gets stats on the usage of all pools.
+         * @return {String} Stats string
+         */
         getStats:function ()
         {
             var s = '';
@@ -117,15 +128,19 @@ gamecore.Pool = gamecore.Base.extend('gamecore.Pool',
         }
 
     },
+    /** @lends gamecore.Pool.prototype */
     {
+        /** Linked list of currently free objects residing in the pool */
         freeList:null,
+        /** Current number of items to expand by: will increase with every expansion */
         expansion: 1,
+        /** Array of traces currently active. Tracing must be on. */
         traces: null,
 
         /**
-         * Constructs a pool using a base of objects passed in as an array.
-         * @param classType Class name of the type of objects in the pool
-         * @param initial Starting number of objects in the pool
+         * Constructs a pool. Will automatically be called by the static pool method. Generally not called directly.
+         * @param {String} classType Class name of the type of objects in the pool
+         * @param {Number} initial Starting number of objects in the pool
          */
         init:function (classType, initial)
         {
@@ -137,7 +152,9 @@ gamecore.Pool = gamecore.Base.extend('gamecore.Pool',
             this.expand(initial);
         },
 
-
+        /**
+         * Enables tracing on this pool.
+         */
         startTracing:function ()
         {
             if (this.tracing) return;
@@ -148,6 +165,9 @@ gamecore.Pool = gamecore.Base.extend('gamecore.Pool',
                 this.traces = new gamecore.Hashtable();
         },
 
+        /**
+         * Disables tracing on this pool.
+         */
         stopTracing:function ()
         {
             this.tracing = false;
@@ -157,7 +177,7 @@ gamecore.Pool = gamecore.Base.extend('gamecore.Pool',
          * Expand the pool of objects by constructing a bunch of new ones. The pool will
          * automatically expand itself by 10% each time it runs out of space, so generally you
          * shouldn't need to use this.
-         * @param howMany Number of new objects you want to add
+         * @param {Number} howMany Number of new objects you want to add
          */
         expand:function (howMany)
         {
@@ -170,16 +190,19 @@ gamecore.Pool = gamecore.Base.extend('gamecore.Pool',
                 this.freeList.push(new this.classType());
         },
 
+        /**
+         * Gets the free count of objects left in the pool
+         * @return {Number} Number free
+         */
         getFreeCount: function()
         {
             return this.freeList.length;
         },
 
         /**
-         * Returns the next free object by moving it from the free pool to the used
-         * one. If no free objects are available it returns the oldest from the used
-         * pool.
-         * access to the object
+         * Returns the next free object by moving it from the free pool to the used one. If no free objects are
+         * available it will expand the pool
+         * @return {gamecore.Pooled} A pooled object
          */
         acquire:function ()
         {
@@ -208,17 +231,21 @@ gamecore.Pool = gamecore.Base.extend('gamecore.Pool',
         },
 
         /**
-         * Releases an object by moving it from the used list back to the free list.
-         * @param obj {pc.Base} The obj to release back into the pool
+         * Releases an object by moving it back onto the free pool
+         * @param {gamecore.Pooled} obj The obj to release back into the pool
          */
         release:function (obj)
         {
             this.freeList.push(obj);
         },
 
+        /**
+         * Gets stats about the pool
+         * @return {String} Stats
+         */
         getStats:function ()
         {
-            var s = this.Class.fullName + ' stats: ' + this.freeList.length + ' free.\n';
+            var s = this.Class.fullName + ' stats: ' + this.freeList.length + ' free.';
 
             if (this.tracing)
             {
@@ -230,6 +257,11 @@ gamecore.Pool = gamecore.Base.extend('gamecore.Pool',
             return s;
         },
 
+        /**
+         * Dumps contents of the pool to through info logging (usually console). Mostly used for debugging the pooling
+         * system, mostly.
+         * @param {String} msg A string to write before the dump
+         */
         dump:function (msg)
         {
             this.info('================== ' + msg + ' ===================');
@@ -239,6 +271,7 @@ gamecore.Pool = gamecore.Base.extend('gamecore.Pool',
 
         /**
          * Returns the number of objects in the pool
+         * @return {Number} Total objects
          */
         size:function ()
         {
@@ -247,6 +280,7 @@ gamecore.Pool = gamecore.Base.extend('gamecore.Pool',
 
         /**
          * Returns the LinkedList of currently free objects in the pool
+         * @return {gamecore.LinkedList} List of free objects
          */
         getFreeList:function ()
         {
@@ -257,6 +291,7 @@ gamecore.Pool = gamecore.Base.extend('gamecore.Pool',
 
 /**
  * @class gamecore.DualPool
+ * @description
  * Easy (high-performance) object pooling
  *
  * A pool of objects for use in situations where you want to minimize object life cycling (and
@@ -304,9 +339,15 @@ gamecore.Pool = gamecore.Base.extend('gamecore.Pool',
  * </code>
  *
  */
-
 gamecore.DualPool = gamecore.Pool.extend('gamecore.DualPool',
+    /** @lends gamecore.DualPool */
     {
+        /**
+         * Acquire an object from a pool based on the class[name]. Typically this method is
+         * automatically called from Pooled.create method and should not be used directly.
+         * @param {String} classType Class of object to create
+         * @return {gamecore.Pooled} A shiny object you can then configure
+         */
         acquire:function (classType)
         {
             var pool = this.getPool(classType);
@@ -319,6 +360,10 @@ gamecore.DualPool = gamecore.Pool.extend('gamecore.DualPool',
             return pool.acquire();
         },
 
+        /**
+         * Gets stats on the usage of all pools.
+         * @return {String} Stats string
+         */
         getStats:function ()
         {
             var s = '';
@@ -333,17 +378,17 @@ gamecore.DualPool = gamecore.Pool.extend('gamecore.DualPool',
             return s;
         }
     },
-    ///
-    /// INSTANCE
-    ///
+    /** @lends gamecore.DualPool.prototype */
     {
+        /** Linked list of currently free objects residing in the pool */
         freeList:null,
+        /** Linked list of currently used objects not in the pool */
         usedList:null,
 
         /**
-         * Constructs a pool using a base of objects passed in as an array.
-         * @param classType Class name of the type of objects in the pool
-         * @param initial Starting number of objects in the pool
+         * Constructs a pool. Will automatically be called by the static pool method. Generally not called directly.
+         * @param {String} classType Class name of the type of objects in the pool
+         * @param {Number} initial Starting number of objects in the pool
          */
         init:function (classType, initial)
         {
@@ -359,7 +404,7 @@ gamecore.DualPool = gamecore.Pool.extend('gamecore.DualPool',
          * Expand the pool of objects by constructing a bunch of new ones. The pool will
          * automatically expand itself by 10% each time it runs out of space, so generally you
          * shouldn't need to use this.
-         * @param howMany Number of new objects you want to add
+         * @param {Number} howMany Number of new objects you want to add
          */
         expand:function (howMany)
         {
@@ -370,14 +415,12 @@ gamecore.DualPool = gamecore.Pool.extend('gamecore.DualPool',
                 this.freeList.add(new this.classType());
         },
 
-        /**
-         * Returns the next free object by moving it from the free pool to the used
-         * one. If no free objects are available it returns the oldest from the used
-         * pool.
-         * access to the object
-         */
         returnObj:null,
 
+        /**
+         * Returns the next free object by moving it from the free pool to the used one.
+         * @return {gamecore.DualPooled} A pooled object you can then configure
+         */
         acquire:function ()
         {
             // check if we have anymore to give out
@@ -408,7 +451,7 @@ gamecore.DualPool = gamecore.Pool.extend('gamecore.DualPool',
 
         /**
          * Releases an object by moving it from the used list back to the free list.
-         * @param obj {pc.Base} The obj to release back into the pool
+         * @param obj {gamecore.DualPooled} The obj to release back into the pool
          */
         release:function (obj)
         {
@@ -416,6 +459,10 @@ gamecore.DualPool = gamecore.Pool.extend('gamecore.DualPool',
             this.usedList.remove(obj);
         },
 
+        /**
+         * Dumps stats about usage to the debug info (generally console)
+         * @param {String} msg Message to display before the dump
+         */
         dump:function (msg)
         {
             this.info('================== ' + msg + ' ===================');
@@ -426,7 +473,7 @@ gamecore.DualPool = gamecore.Pool.extend('gamecore.DualPool',
         },
 
         /**
-         * Returns the number of objects in the pool
+         * Returns the number of objects in both the free and used pool
          */
         size:function ()
         {
@@ -434,8 +481,8 @@ gamecore.DualPool = gamecore.Pool.extend('gamecore.DualPool',
         },
 
         /**
-         * Returns the LinkedList of current used objects in the pool
-         * @return {*}
+         * Returns the LinkedList of current used objects
+         * @return {gamecore.LinkedList}
          */
         getUsedList:function ()
         {
@@ -446,46 +493,57 @@ gamecore.DualPool = gamecore.Pool.extend('gamecore.DualPool',
 
 /**
  * @class gamecore.Pooled
+ * @description
  * Used as a base class for objects which are life cycle managed in an object pool.
  */
 gamecore.Pooled = gamecore.Base('gamecore.Pooled',
-    ///
-    /// STATICS
-    ///
+    /** @lends gamecore.Pooled */
     {
         /**
          * Static factory method for creating a new object based on its class. This method
          * should be called using this._super from the Class.create that derives from this.
-         * @returns An object from the pool
+         * @returns {gamecore.Pooled} An object from the pool
          */
         create:function ()
         {
             return gamecore.Pool.acquire(this);
         },
 
+        /**
+         * Get the object pool associated with this object class
+         * @return {gamecore.Pool} The object pool
+         */
         getPool:function ()
         {
             return gamecore.Pool.getPool(this);
         }
 
     },
-    ///
-    /// INSTANCE
-    ///
+    /** @lends gamecore.Pooled.prototype */
     {
+        /** Has the object been destroyed (returned to the pool) */
         destroyed:false,
 
+        /**
+         * Constructor for the object (default calls base class init)
+         */
         init:function ()
         {
             this._super();
         },
 
+        /**
+         * Release the object back into the pool
+         */
         release:function ()
         {
             this.onRelease();
             gamecore.Pool.release(this);
         },
 
+        /**
+         * Template callback when an object is released; gives you a chance to do your own cleanup / releasing
+         */
         onRelease:function ()
         {
         }
@@ -495,46 +553,57 @@ gamecore.Pooled = gamecore.Base('gamecore.Pooled',
 
 /**
  * @class gamecore.DualPooled
+ * @description
  * Used as a base class for objects which are life cycle managed in an object pool (the DualPool edition)
  */
 gamecore.DualPooled = gamecore.Base('gamecore.DualPooled',
-    ///
-    /// STATICS
-    ///
+    /** @lends gamecore.DualPool */
     {
         /**
          * Static factory method for creating a new object based on its class. This method
          * should be called using this._super from the Class.create that derives from this.
-         * @returns An object from the pool
+         * @returns {gamecore.Pooled} An object from the pool
          */
         create:function ()
         {
             return gamecore.DualPool.acquire(this);
         },
 
+        /**
+         * Get the object pool associated with this object class
+         * @return {gamecore.Pool} The object pool
+         */
         getPool:function ()
         {
             return gamecore.DualPool.getPool(this);
         }
 
     },
-    ///
-    /// INSTANCE
-    ///
+    /** @lends gamecore.DualPool.prototype */
     {
+        /** Has the object been destroyed (returned to the pool) */
         destroyed:false,
 
+        /**
+         * Constructor for the object (default calls base class init)
+         */
         init:function ()
         {
             this._super();
         },
 
+        /**
+         * Release the object back into the pool
+         */
         release:function ()
         {
             this.onRelease();
             gamecore.DualPool.release(this);
         },
 
+        /**
+         * Template callback when an object is released; gives you a chance to do your own cleanup / releasing
+         */
         onRelease:function ()
         {
         }
