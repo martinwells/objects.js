@@ -25,6 +25,10 @@ for some general game shimming.
 Lastly, and probably most importantly, we open-sourced all this so that other library developers (creating code for
 use in games) can implement things like object pooling easily (and thus making it useful in a gaming context).
 
+# Changes (10/20/12)
+Removed the dependency of jQuery. Some of the jQuery functionality has been moved directly into gamecore.
+Script execution order has also changed. It should now be gamecore.js, class.js and then the new base.js
+
 
 # Changes (8/9/12)
 See the [blog post](http://blog.getplaycraft.com/array-pooling/) for
