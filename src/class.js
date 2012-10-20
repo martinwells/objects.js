@@ -185,11 +185,7 @@
              */
             niceName:function (s)
             {
-<<<<<<< HEAD
                 return str.classize(s, ' ');
-=======
-                return str.classize(parts[i], ' ');
->>>>>>> Removed jQuery dependency
             },
 
             /**
