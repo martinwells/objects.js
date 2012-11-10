@@ -15,6 +15,7 @@ gamecore.Device = gamecore.Base.extend('gamecore.Device',
         isiPhone:false,
         isiPhone4:false,
         isiPad:false,
+        isiPod: false,
         isAndroid:false,
         isTouch:false,
         isFirefox:false,
@@ -32,6 +33,7 @@ gamecore.Device = gamecore.Base.extend('gamecore.Device',
         {
             this.pixelRatio = window.devicePixelRatio || 1;
             this.isiPhone = navigator.userAgent.toLowerCase().indexOf('iphone') != -1;
+            this.isiPod = navigator.userAgent.toLowerCase().indexOf('ipod') != -1;
             this.isiPhone4 = (this.pixelRatio == 2 && this.isiPhone);
             this.isiPad = navigator.userAgent.toLowerCase().indexOf('ipad') != -1;
             this.isAndroid = navigator.userAgent.toLowerCase().indexOf('android') != -1;
@@ -39,6 +41,7 @@ gamecore.Device = gamecore.Base.extend('gamecore.Device',
             this.isChrome = navigator.userAgent.toLowerCase().indexOf('chrome') != -1;
             this.isOpera = navigator.userAgent.toLowerCase().indexOf('opera') != -1;
             this.isTouch = window.ontouchstart !== 'undefined';
+            this.isiOS = (this.isiPhone || this.iPad || this.isiPod);
 
             if (window.performance != undefined)
                 this.hasMemoryProfiling = (window.performance.memory);
