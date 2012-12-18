@@ -586,6 +586,8 @@ gamecore.extend({
     // Deferred helper
     when:function (firstParam)
     {
+        var // Static reference to slice
+            sliceDeferred = [].slice;
         var args = sliceDeferred.call(arguments, 0),
             i = 0,
             length = args.length,
