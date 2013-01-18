@@ -8,7 +8,8 @@ window.gamecore =
 
     isFunction:function (obj)
     {
-        return !!(obj && obj.constructor && obj.call && obj.apply);
+        // return Object.prototype.toString.call(obj) === "[object Function]";
+       return !!(obj && obj.constructor && obj.call && obj.apply);
     },
 
     isWindow:function (obj)
@@ -81,7 +82,6 @@ window.gamecore =
         if (typeof target !== "object" && !gamecore.isFunction(target))
             target = {};
 
-        // extend jQuery itself if only one argument is passed
         if (length === i)
         {
             target = this;
@@ -106,7 +106,7 @@ window.gamecore =
                     }
 
                     // Recurse if we're merging plain objects or arrays
-                    if (deep && copy && ( this.isPlainObject(copy) || (copyIsArray = jQuery.isArray(copy)) ))
+                    if (deep && copy && ( this.isPlainObject(copy) || (copyIsArray = this.isArray(copy)) ))
                     {
                         if (copyIsArray)
                         {
