@@ -28,11 +28,12 @@ gamecore.Base = gamecore.Class('gamecore.Base',
         ERROR:'ERROR',
         INFO:'INFO',
 
-        log:function (id, type, message)
+        log:function (id, type, args)
         {
             var idString = '';
             if (id) idString = ':' + id;
-            console.log(this.fullName + idString + ' [' + type + '] ' + message);
+            //console.log(this.fullName + idString + ' [' + type + '] ' + message);
+            console.log.apply(console, [this.fullName + idString + ' [' + type + '] '].concat(Array.prototype.slice.call(args)));
         },
 
         warn:function (message)
@@ -98,19 +99,19 @@ gamecore.Base = gamecore.Class('gamecore.Base',
 
         warn:function (message)
         {
-            this.Class.log(this.objectId, this.Class.WARN, message);
+            this.Class.log(this.objectId, this.Class.WARN, arguments);
         },
         debug:function (message)
         {
-            this.Class.log(this.objectId, this.Class.DEBUG, message);
+            this.Class.log(this.objectId, this.Class.DEBUG, arguments);
         },
         error:function (message)
         {
-            this.Class.log(this.objectId, this.Class.ERROR, message);
+            this.Class.log(this.objectId, this.Class.ERROR, arguments);
         },
         info:function (message)
         {
-            this.Class.log(this.objectId, this.Class.INFO, message);
+            this.Class.log(this.objectId, this.Class.INFO, arguments);
         },
 
         toString:function ()
