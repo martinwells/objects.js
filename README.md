@@ -104,7 +104,7 @@ If you want to enable tracing at the start of your code, you may want to manuall
 
 # Using
 
-## gamceore.Class
+## gamecore.Class
 A modified version of class.js to cater to static inheritance and deep object cloning.
 Based almost completely on class.js (Javascript MVC -- Justin Meyer, Brian Moschel, Michael Mayer and others)
 (http://javascriptmvc.com/contribute.html).
