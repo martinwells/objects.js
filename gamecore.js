@@ -1324,10 +1324,12 @@ gamecore.Device = gamecore.Base.extend('gamecore.Device',
             }
 
             // determine what sound formats we can play
-            var check = new Audio();
-            if (check.canPlayType('audio/ogg')) this.canPlayOgg = true;
-            if (check.canPlayType('audio/mpeg')) this.canPlayMP3 = true;
-            if (check.canPlayType('audio/x-wav')) this.canPlayWav = true;
+            try {
+              var check = new Audio();
+              if (check.canPlayType('audio/ogg')) this.canPlayOgg = true;
+              if (check.canPlayType('audio/mpeg')) this.canPlayMP3 = true;
+              if (check.canPlayType('audio/x-wav')) this.canPlayWav = true;
+            } catch (e) {}
 
             this.requestAnimFrame = (function ()
             {
@@ -1379,6 +1381,7 @@ gamecore.Device = gamecore.Base.extend('gamecore.Device',
     {
         // Singleton static class, so nothing required here
     });
+
 /**
  * @class gamecore.HashList
  * @description
