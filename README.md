@@ -1,5 +1,5 @@
-# gamecore.js
-gamecore.js is a framework to help build high-performance (and large) games using javascript.
+# objects.js
+objects.js is a framework to help build high-performance (and large) games and apps using javascript.
 
 It is comprised of:
 
@@ -11,38 +11,17 @@ It is comprised of:
 
 # Why?
 
-We ([Playcraft](http://playcraftlabs.com)) like building games in javascript, but along the way we found some issues:
+I like building big, high-performance things like games in javascript, but along the way I found some issues:
 
-* Object-oriented - call us old fashioned, but object-orientation is just in our dna now, so we took what
- we felt was the best of the javascript class systems (thanks to Prototype and class.js/Javascript MVC) and
+* Object-oriented - the best of the javascript class systems (thanks to Prototype and class.js/Javascript MVC) and
  tweaked a few things.
-* Pooling - garbage collection is a pain for a high-performance game, so rather than implementing it sporadically,
+* Pooling - garbage collection is a pain for a high-performance apps, so rather than implementing it sporadically,
 we built a way to easily pool any class.
 * Linked Lists - we needed a way of storing game objects in a super-fast way, so we included a high-speed linked list.
 * We included some other tools, like a simple performance measurement, Tim Down's awesome hashtable and a device lookup
 for some general game shimming.
 
-Lastly, and probably most importantly, we open-sourced all this so that other library developers (creating code for
-use in games) can implement things like object pooling easily (and thus making it useful in a gaming context).
-
-# Changes (10/20/12)
-Removed the dependency of jQuery. Some of the jQuery functionality has been moved directly into gamecore.
-Script execution order has also changed. It should now be gamecore.js, class.js and then the new base.js
-
-
-# Changes (8/9/12)
-See the [blog post](http://blog.getplaycraft.com/array-pooling/) for
-more discussion (and comments if you have them).
-
-## Array Pooling
-The default pooling mechanism is now based on a single-list array, which is slightly faster than a linked list.
-If you want to use the free/used dual list, then extend gamecore.DualPooled instead of gamecore.Pooled.
-
-
-
-# Changes (7/30/12)
-See the [blog post](http://blog.getplaycraft.com/gamecore-js-updates-pool-tracing-class-typing-and-more-stats/) for
-more discussion (and comments if you have them).
+# New Things
 
 ## Typing
 Classes are now automatically populated with three type related components:
